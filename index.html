@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Title</title>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css" rel="stylesheet">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <style>
+        .title-glow {
+            text-shadow: 1px 2px 4px rgba(0, 0, 0, 0.432);
+            letter-spacing: 1px;
+            font-weight: 700;
+          }
+          
+    </style>
+    </head>
+    <body>
+
+        <div class="section container">
+            <div class="row">
+                <div class="col s12 m5">
+                    <div class="card-panel teal center-align">
+                      <h5 class="white-text title-glow"><strong>¡Calcula tus horas!</strong></h5>
+                  
+                      <div>
+                        <img width="190" src="https://cdn.prod.website-files.com/5e51c674258ffe10d286d30a/5e5362e2f5fa1aefa7ffe47c_peep-standing-22.svg" alt="img" class="responsive-img">
+                      </div>
+                    </div>
+                  </div>
+                  
+                <div class="col s8 m7">
+                    <div class="card-panel">
+                        <div class="card-content row">
+                            <form class="col s12">
+                                <div class="row">
+                                    <div class="input-field col s6">
+                                        <input placeholder="Placeholder" id="hora_entrada" type="time" class="validate">
+                                        <label for="hora_entrada">Hora de entrada</label>
+                                    </div>
+                                    <div class="input-field col s6">
+                                        <input id="hora_salida" type="time" class="validate">
+                                        <label for="hora_salida">Hora de salida</label>
+                                    </div>
+                                </div>
+                                <div class="contenedor-bloques" id="contenedor-bloques">
+                                    <div class="bloque-horas">
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <select class="tipo-hora">
+                                                    <option value="" disabled selected>Seleccionar opción</option>
+                                                    <option value="1">Horas ordinarias</option>
+                                                    <option value="2">Horas extras</option>
+                                                    <option value="3">Horas extras nocturnas</option>
+                                                </select>
+                                                <label>Tipo de hora</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input type="time" class="validate inicio">
+                                                <label>Hora de inicio</label>
+                                            </div>
+                                        </div>
+                                        <div class="row">
+                                            <div class="input-field col s12">
+                                                <input type="time" class="validate fin">
+                                                <label>Hora de fin</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <a class="btn-floating btn-large waves-effect waves-light red" id="agregar-bloque"><i class="material-icons">add</i>
+                                    Añadir otro tipo de hora
+                                </a>
+                                
+                                <button class="btn waves-effect waves-light" type="submit" name="action">Calcular
+                                    <i class="material-icons right">send</i>
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div id="modalResultado" class="modal">
+                <div class="modal-content">
+                  <h4>Resultado</h4>
+                  <p id="contenidoResultado"></p>
+                </div>
+                <div class="modal-footer">
+                  <a href="#!" class="modal-close waves-effect waves-green btn-flat">Cerrar</a>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+        <script>
+            $(document).ready(function(){
+                $('.modal').modal();
+            });
+            
+            document.addEventListener('DOMContentLoaded', function() {
+                var elems = document.querySelectorAll('select');
+                M.FormSelect.init(elems);
+            });
+        </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                const contenedor = document.getElementById('contenedor-bloques');
+                const btnAgregar = document.getElementById('agregar-bloque');
+            
+                const initSelects = () => {
+                    const elems = document.querySelectorAll('select');
+                    M.FormSelect.init(elems);
+                };
+            
+            
+                btnAgregar.addEventListener('click', () => {
+                    const bloqueOriginal = document.querySelector('.bloque-horas');
+                    const bloqueClone = bloqueOriginal.cloneNode(true);
+
+                    bloqueClone.querySelectorAll('.select-dropdown').forEach(el => el.remove());
+                    bloqueClone.querySelectorAll('.dropdown-trigger').forEach(el => el.remove());
+
+                    const clone = bloqueClone;
+                    clone.querySelectorAll('input').forEach(input => input.value = '');
+                    clone.querySelectorAll('select').forEach(select => select.selectedIndex = 0);
+            
+                    const selects = contenedor.querySelectorAll('.tipo-hora');
+                    const opcionesUsadas = Array.from(selects).map(s => s.value).filter(v => v !== "");
+            
+                    const opcionesDisponibles = ["1", "2", "3"].filter(opt => !opcionesUsadas.includes(opt));
+            
+                    if (opcionesDisponibles.length === 0) {
+                        M.toast({ html: 'Ya agregaste todos los tipos de hora posibles', classes: 'red' });
+                        return;
+                    }
+            
+                    const nuevoSelect = clone.querySelector('select');
+                    nuevoSelect.querySelectorAll('option').forEach(opt => {
+                        if (opcionesUsadas.includes(opt.value)) {
+                            opt.disabled = true;
+                        }
+                    });
+            
+                    contenedor.appendChild(clone);
+                    initSelects();
+
+                });
+            });
+        </script>
+        <script>
+            $(document).ready(function () {
+                const tiposHora = {
+                    "1": { id: "HO", name: "HO" },
+                    "2": { id: "HED", name: "HED" },
+                    "3": { id: "HEN", name: "HEN" }
+                };
+            
+                $('form').on('submit', function (e) {
+                    e.preventDefault();
+            
+                    const attendanceIn = $('#hora_entrada').val();
+                    const attendanceOut = $('#hora_salida').val();
+            
+                    const concepts = [];
+            
+                    $('.bloque-horas').each(function () {
+                        const tipo = $(this).find('.tipo-hora').val();
+                        const inicio = $(this).find('.inicio').val();
+                        const fin = $(this).find('.fin').val();
+            
+                        if (tipo && inicio && fin) {
+                            const datos = tiposHora[tipo];
+                            concepts.push({
+                                id: datos.id,
+                                name: datos.name,
+                                start: inicio,
+                                end: fin
+                            });
+                        }
+                    });
+            
+                    const payload = {
+                        attendanceIn,
+                        attendanceOut,
+                        concepts
+                    };
+                    $.ajax({
+                        url: 'https://falconcloud.co/site_srv10_ph/site/api/qserv.php/13465-770721', 
+                        method: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(payload),
+                        success: function (response) {
+                            let html = '';
+                            const tiposHoras = {
+                                HO: 'horas ordinarias',
+                                HED: 'horas extras',
+                                HEN: 'horas extras nocturnas'
+                            };
+                            $.each(response, function (clave, valor) {
+                                const tipo = tiposHoras[clave] || 'tipo desconocido';
+                                html += `<p>Tienes un total de <strong>${valor}</strong> ${tipo}</p>`;
+                            });
+
+                            $('#contenidoResultado').html(html);
+                            $('#modalResultado').modal('open');
+                        },
+                        error: function (xhr, status, error) {
+                            console.error('Error en el envío:', error);
+                            M.toast({ html: 'Error al enviar los datos', classes: 'red' });
+                        }
+                    });
+                });
+            });
+            </script>
+            
+            
+    </body>
+</html>
